@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
 
     const db = client.db("job-portal-db");
@@ -47,6 +47,28 @@ async function run() {
         }
         const query = { _id: new ObjectId(id) };
         const result = await jobsCollection.findOne(query);
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
+    app.patch("/jobs/increase/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        console.log(id);
+
+        if (id.length != 24) {
+          res.status(500).send({ message: "Id must be 24 character" });
+          return;
+        }
+        const query = { _id: new ObjectId(id) };
+
+        const filter = {
+          $inc: {
+            applicants_count: 1,
+          },
+        };
+        const result = await jobsCollection.updateOne(query, filter);
         res.send(result);
       } catch (err) {
         res.status(500).send(err);
@@ -100,7 +122,7 @@ async function run() {
       }
     });
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
