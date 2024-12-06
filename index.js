@@ -54,6 +54,16 @@ async function run() {
     });
 
     //application api start
+    app.get("/application", async (req, res) => {
+      try {
+        const email = req.query.email;
+        const query = { candidate_email: email };
+        const result = await applicationCollection.find(query).toArray();
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
     app.post("/application", async (req, res) => {
       try {
         const data = req.body;
