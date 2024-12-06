@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@mern-cluster.voqlfwt.mongodb.net/?retryWrites=true&w=majority&appName=mern-cluster`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -37,6 +37,20 @@ async function run() {
         res.status(500).send(err);
       }
     });
+    app.get("/jobs/details/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        if (id.length != 24) {
+          res.status(500).send({ message: "Id must be 24 character" });
+          return;
+        } 
+        const query = { _id: new ObjectId(id) };
+        const result = await jobsCollection.findOne(query);
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });k
 
     await client.db("admin").command({ ping: 1 });
     console.log(
