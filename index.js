@@ -27,6 +27,7 @@ async function run() {
 
     const db = client.db("job-portal-db");
     const jobsCollection = db.collection("jobs");
+    const applicationCollection = db.collection("application");
 
     //jobs API start
     app.get("/jobs", async (req, res) => {
@@ -43,14 +44,35 @@ async function run() {
         if (id.length != 24) {
           res.status(500).send({ message: "Id must be 24 character" });
           return;
-        } 
+        }
         const query = { _id: new ObjectId(id) };
         const result = await jobsCollection.findOne(query);
         res.send(result);
       } catch (err) {
         res.status(500).send(err);
       }
-    });k
+    });
+
+    //application api start
+    app.post("/application", async (req, res) => {
+      try {
+        const data = req.body;
+        const isApplied = await applicationCollection.findOne({
+          candidate_email: data.candidate_email,
+          job_id: data.job_id,
+        });
+
+        if (isApplied) {
+          res.status(400).send({ status: false, message: "Allready Applied" });
+          return;
+        }
+
+        const result = await applicationCollection.insertOne(data);
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
