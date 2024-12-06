@@ -83,6 +83,22 @@ async function run() {
         res.status(500).send(err);
       }
     });
+    app.delete("/application/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        console.log(id);
+
+        if (id.length != 24) {
+          res.status(500).send({ message: "Id must be 24 character" });
+          return;
+        }
+        const query = { _id: new ObjectId(id) };
+        const result = await applicationCollection.deleteOne(query);
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
