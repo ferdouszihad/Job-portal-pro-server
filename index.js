@@ -30,6 +30,16 @@ async function run() {
     const applicationCollection = db.collection("application");
 
     //jobs API start
+    app.post("/job", async (req, res) => {
+      try {
+        const data = req.body;
+        const result = await jobsCollection.insertOne(data);
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
+
     app.get("/jobs", async (req, res) => {
       try {
         const result = await jobsCollection.find().toArray();
