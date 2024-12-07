@@ -30,15 +30,6 @@ async function run() {
     const applicationCollection = db.collection("application");
 
     //jobs API start
-    app.post("/job", async (req, res) => {
-      try {
-        const data = req.body;
-        const result = await jobsCollection.insertOne(data);
-        res.send(result);
-      } catch (err) {
-        res.status(500).send(err);
-      }
-    });
 
     app.get("/jobs", async (req, res) => {
       try {
@@ -57,6 +48,16 @@ async function run() {
         }
         const query = { _id: new ObjectId(id) };
         const result = await jobsCollection.findOne(query);
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
+    app.get("/jobs/user/:email", async (req, res) => {
+      try {
+        const email = req.params.email;
+        const query = { hr_email: email };
+        const result = await jobsCollection.find(query).toArray();
         res.send(result);
       } catch (err) {
         res.status(500).send(err);
