@@ -39,6 +39,14 @@ async function run() {
         res.status(500).send(err);
       }
     });
+    app.post("/jobs", async (req, res) => {
+      try {
+        const result = await jobsCollection.insertOne(req.body);
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
     app.get("/jobs/details/:id", async (req, res) => {
       try {
         const id = req.params.id;
@@ -58,6 +66,22 @@ async function run() {
         const email = req.params.email;
         const query = { hr_email: email };
         const result = await jobsCollection.find(query).toArray();
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
+    app.delete("/jobs/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        console.log(id);
+
+        if (id.length != 24) {
+          res.status(500).send({ message: "Id must be 24 character" });
+          return;
+        }
+        const query = { _id: new ObjectId(id) };
+        const result = await jobsCollection.deleteOne(query);
         res.send(result);
       } catch (err) {
         res.status(500).send(err);
