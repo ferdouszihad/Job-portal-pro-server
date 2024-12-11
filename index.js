@@ -47,6 +47,7 @@ async function run() {
         res.status(500).send(err);
       }
     });
+
     app.get("/jobs/details/:id", async (req, res) => {
       try {
         const id = req.params.id;
@@ -87,6 +88,33 @@ async function run() {
         res.status(500).send(err);
       }
     });
+
+    app.put("/jobs/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const newData = req.body;
+        console.log(id, newData);
+
+        if (id.length != 24) {
+          res.status(500).send({ message: "Id must be 24 character" });
+          return;
+        }
+        const query = { _id: new ObjectId(id) };
+
+        const filter = {
+          $set: {
+            ...newData,
+          },
+        };
+        const result = await jobsCollection.updateOne(query, filter, {
+          upsert: true,
+        });
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
+
     app.patch("/jobs/increase/:id", async (req, res) => {
       try {
         const id = req.params.id;
@@ -121,6 +149,20 @@ async function run() {
         res.status(500).send(err);
       }
     });
+
+    app.get("/application/jobs/:id", async (req, res) => {
+      try {
+        const email = req.query.email;
+        const id = req.params.id;
+        const query = { hr_email: email, job_id: id };
+        console.log(query);
+        const result = await applicationCollection.find(query).toArray();
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
+
     app.post("/application", async (req, res) => {
       try {
         const data = req.body;
@@ -140,6 +182,30 @@ async function run() {
         res.status(500).send(err);
       }
     });
+
+    app.patch("/application/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const { status } = req.body;
+        console.log(id);
+        if (id.length != 24) {
+          res.status(500).send({ message: "Id must be 24 character" });
+          return;
+        }
+        const query = { _id: new ObjectId(id) };
+
+        const filter = {
+          $set: {
+            status,
+          },
+        };
+        const result = await applicationCollection.updateOne(query, filter);
+        res.send(result);
+      } catch (err) {
+        res.status(500).send(err);
+      }
+    });
+    
     app.delete("/application/:id", async (req, res) => {
       try {
         const id = req.params.id;
